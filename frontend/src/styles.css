@@ -4,15 +4,15 @@
   --surface-border: #444444;
   --text-on-dark: #ffffff;
   --muted-on-dark: #a8a8a8;
-  --panel: #f4f1ea;
-  --panel-soft: #fbfaf7;
-  --panel-border: #c9c2b6;
-  --panel-text: #17211d;
-  --panel-muted: #4f5c55;
+  --panel: #2f2f2f;
+  --panel-soft: #262626;
+  --panel-border: #4a4a4a;
+  --panel-text: #ffffff;
+  --panel-muted: #b8b8b8;
   --green: #3b9828;
   --green-hover: #328521;
-  --danger-bg: #f8dfd8;
-  --danger-text: #9d2c1c;
+  --danger-bg: #4a2621;
+  --danger-text: #ffd7d0;
   color: var(--text-on-dark);
   background: var(--background);
   font-family:
@@ -152,6 +152,7 @@ textarea {
   border: 1px solid var(--panel-border);
   border-radius: 6px;
   color: var(--panel-text);
+  color-scheme: dark;
   min-height: 42px;
   outline: none;
   padding: 9px 10px;
@@ -245,8 +246,8 @@ textarea:focus {
 }
 
 .icon-button.muted {
-  background: #e7e2d7;
-  color: var(--panel-text);
+  background: #3a3a3a;
+  color: var(--text-on-dark);
 }
 
 .icon-button.danger {
@@ -277,14 +278,14 @@ table {
 
 th,
 td {
-  border-bottom: 1px solid #ddd6ca;
+  border-bottom: 1px solid #454545;
   padding: 14px;
   text-align: left;
   vertical-align: top;
 }
 
 th {
-  background: #e9e4da;
+  background: #383838;
   color: var(--panel-muted);
   font-size: 12px;
   text-transform: uppercase;
@@ -302,7 +303,7 @@ td strong {
 }
 
 td small {
-  color: #69756e;
+  color: #b8b8b8;
   display: block;
   line-height: 1.35;
 }
@@ -321,7 +322,7 @@ td small {
 
 .empty-state {
   align-items: center;
-  color: #69756e;
+  color: #b8b8b8;
   display: grid;
   gap: 10px;
   justify-items: center;
