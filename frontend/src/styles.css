@@ -139,18 +139,7 @@ select {
 }
 
 select {
-  appearance: none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #17211d 50%),
-    linear-gradient(135deg, #17211d 50%, transparent 50%);
-  background-position:
-    calc(100% - 20px) 50%,
-    calc(100% - 14px) 50%;
-  background-repeat: no-repeat;
-  background-size:
-    7px 7px,
-    7px 7px;
-  padding-right: 44px;
+  padding-right: 34px;
 }
 
 input[type="date"] {
