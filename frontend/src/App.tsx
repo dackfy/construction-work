@@ -174,7 +174,7 @@ export function App() {
             <p>Видов работ</p>
           </div>
         </article>
-        <article className="stat-card">
+        <article className="stat-card stat-card-wide">
           <Ruler size={20} />
           <div>
             <span>{periodLabel}</span>
@@ -327,9 +327,13 @@ export function App() {
                       {log.comment && <small>{log.comment}</small>}
                     </td>
                     <td>
-                      {log.volume} {log.unit}
+                      <span className="volume-pill">
+                        {log.volume} {log.unit}
+                      </span>
                     </td>
-                    <td>{log.performerName}</td>
+                    <td>
+                      <span className="performer-name">{log.performerName}</span>
+                    </td>
                     <td>
                       <div className="row-actions">
                         <button className="icon-button" type="button" onClick={() => handleEdit(log)} title="Редактировать">

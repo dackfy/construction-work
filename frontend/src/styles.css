@@ -1,13 +1,13 @@
 :root {
-  --background: #111211;
-  --background-soft: #181a18;
-  --panel: #2f302f;
-  --panel-raised: #353735;
-  --panel-soft: #242624;
-  --panel-border: #494d48;
-  --panel-border-strong: #5d655b;
+  --background: #101110;
+  --background-soft: #151715;
+  --panel: #222421;
+  --panel-raised: #2b2e29;
+  --panel-soft: #181b18;
+  --panel-border: #3d443b;
+  --panel-border-strong: #56604f;
   --text: #f8faf7;
-  --muted: #aeb7ad;
+  --muted: #a9b2a7;
   --muted-strong: #d7ddd5;
   --green: #3b9828;
   --green-hover: #46aa31;
@@ -31,7 +31,8 @@
 
 body {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 280px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 240px),
+    linear-gradient(90deg, rgba(59, 152, 40, 0.08), transparent 34%),
     var(--background);
   margin: 0;
   min-width: 320px;
@@ -50,9 +51,9 @@ button {
 }
 
 .page {
-  width: min(1240px, calc(100% - 40px));
+  width: min(1280px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 44px 0;
+  padding: 34px 0;
 }
 
 .topbar {
@@ -60,12 +61,12 @@ button {
   display: flex;
   gap: 20px;
   justify-content: space-between;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .title-block {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 h1,
@@ -76,9 +77,9 @@ p {
 
 h1 {
   color: var(--text);
-  font-size: clamp(42px, 6vw, 76px);
+  font-size: clamp(42px, 5.4vw, 68px);
   letter-spacing: 0;
-  line-height: 0.95;
+  line-height: 0.96;
 }
 
 h2 {
@@ -89,7 +90,7 @@ h2 {
 
 .hero-copy {
   color: var(--muted);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.45;
   max-width: 620px;
 }
@@ -113,31 +114,39 @@ h2 {
 
 .stats-grid {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .stat-card {
   align-items: center;
-  background: var(--panel-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent),
+    var(--panel-soft);
   border: 1px solid var(--panel-border);
   border-radius: 8px;
   color: var(--text);
   display: flex;
-  gap: 14px;
-  min-height: 78px;
-  padding: 16px;
+  gap: 12px;
+  min-height: 68px;
+  padding: 14px;
 }
 
 .stat-card svg {
+  background: rgba(70, 170, 49, 0.12);
+  border: 1px solid rgba(70, 170, 49, 0.28);
+  border-radius: 7px;
   color: var(--green-hover);
   flex: 0 0 auto;
+  height: 34px;
+  padding: 7px;
+  width: 34px;
 }
 
 .stat-card span {
   display: block;
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 900;
   line-height: 1.1;
   overflow-wrap: anywhere;
@@ -145,21 +154,23 @@ h2 {
 
 .stat-card p {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .workspace {
   align-items: start;
   display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+  gap: 16px;
+  grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
 }
 
 .panel,
 .table-shell {
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 180px),
+    var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 8px;
   box-shadow: var(--shadow);
@@ -168,10 +179,14 @@ h2 {
 
 .form-panel {
   display: grid;
-  gap: 15px;
-  padding: 20px;
+  gap: 12px;
+  padding: 18px;
   position: sticky;
   top: 18px;
+}
+
+.form-panel {
+  border-left: 3px solid var(--green);
 }
 
 .panel-header,
@@ -192,9 +207,9 @@ h2 {
 label {
   color: var(--muted-strong);
   display: grid;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
-  gap: 8px;
+  gap: 7px;
 }
 
 input,
@@ -205,9 +220,9 @@ textarea {
   border-radius: 8px;
   color: var(--text);
   color-scheme: dark;
-  min-height: 46px;
+  min-height: 42px;
   outline: none;
-  padding: 10px 12px;
+  padding: 8px 12px;
   transition:
     background-color 0.16s ease,
     border-color 0.16s ease,
@@ -217,7 +232,7 @@ textarea {
 
 input,
 select {
-  min-height: 46px;
+  min-height: 42px;
 }
 
 input:not([type="date"]),
@@ -240,7 +255,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 textarea {
-  min-height: 92px;
+  min-height: 80px;
   resize: vertical;
 }
 
@@ -265,8 +280,8 @@ textarea:focus {
 
 .inline-fields {
   display: grid;
-  gap: 12px;
-  grid-template-columns: 1fr 116px;
+  gap: 10px;
+  grid-template-columns: 1fr 108px;
 }
 
 .primary-button,
@@ -280,7 +295,7 @@ textarea:focus {
   font-weight: 900;
   gap: 9px;
   justify-content: center;
-  min-height: 44px;
+  min-height: 42px;
   transition:
     background-color 0.16s ease,
     transform 0.16s ease,
@@ -314,7 +329,7 @@ textarea:focus {
 }
 
 .secondary-button {
-  padding: 0 16px;
+  padding: 0 15px;
   white-space: nowrap;
 }
 
@@ -348,8 +363,8 @@ textarea:focus {
   background: var(--panel-soft);
   border: 1px solid var(--panel-border);
   color: var(--text);
-  min-height: 42px;
-  width: 42px;
+  min-height: 40px;
+  width: 40px;
 }
 
 .icon-button:hover {
@@ -371,11 +386,14 @@ textarea:focus {
 
 .journal-header {
   align-items: end;
-  background: var(--panel-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+    var(--panel);
   border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--green);
   border-radius: 8px;
-  margin-bottom: 12px;
-  padding: 16px;
+  margin-bottom: 10px;
+  padding: 15px;
 }
 
 .filters {
@@ -397,14 +415,14 @@ table {
 
 th,
 td {
-  border-bottom: 1px solid #424540;
-  padding: 15px 18px;
+  border-bottom: 1px solid #353b34;
+  padding: 14px 18px;
   text-align: left;
   vertical-align: top;
 }
 
 th {
-  background: #383b38;
+  background: #282b27;
   color: var(--muted);
   font-size: 12px;
   text-transform: uppercase;
@@ -425,7 +443,7 @@ td {
 
 td strong {
   display: block;
-  font-size: 15px;
+  font-size: 14px;
   margin-bottom: 5px;
 }
 
@@ -441,6 +459,23 @@ td small {
   display: inline-flex;
   gap: 8px;
   white-space: nowrap;
+}
+
+.volume-pill {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid var(--panel-border);
+  border-radius: 7px;
+  color: var(--text);
+  display: inline-flex;
+  font-weight: 800;
+  line-height: 1;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+
+.performer-name {
+  color: var(--muted-strong);
+  font-weight: 750;
 }
 
 .row-actions {
