@@ -1,0 +1,313 @@
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  CalendarDays,
+  Check,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Trash2,
+  X
+} from "lucide-react";
+import { api } from "./api";
+import type { WorkLog, WorkLogInput, WorkType } from "./types";
+
+const emptyForm: WorkLogInput = {
+  performedAt: new Date().toISOString().slice(0, 10),
+  workTypeId: "",
+  volume: "",
+  unit: "м³",
+  performerName: "",
+  comment: ""
+};
+
+const units = ["м³", "м²", "м.п.", "шт.", "т", "час"];
+
+export function App() {
+  const [workTypes, setWorkTypes] = useState<WorkType[]>([]);
+  const [logs, setLogs] = useState<WorkLog[]>([]);
+  const [form, setForm] = useState<WorkLogInput>(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sort, setSort] = useState<"asc" | "desc">("desc");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const selectedLog = useMemo(
+    () => logs.find((log) => log.id === editingId),
+    [editingId, logs]
+  );
+
+  const loadData = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const [types, items] = await Promise.all([
+        api.getWorkTypes(),
+        api.getWorkLogs({ startDate, endDate, sort })
+      ]);
+
+      setWorkTypes(types);
+      setLogs(items);
+      setForm((current) => ({
+        ...current,
+        workTypeId: current.workTypeId || types[0]?.id || ""
+      }));
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "Ошибка загрузки");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadData();
+  }, [startDate, endDate, sort]);
+
+  const resetForm = () => {
+    setEditingId(null);
+    setForm({
+      ...emptyForm,
+      workTypeId: workTypes[0]?.id || ""
+    });
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSaving(true);
+    setError("");
+
+    try {
+      if (editingId) {
+        await api.updateWorkLog(editingId, form);
+      } else {
+        await api.createWorkLog(form);
+      }
+
+      resetForm();
+      await loadData();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Ошибка сохранения");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEdit = (log: WorkLog) => {
+    setEditingId(log.id);
+    setForm({
+      performedAt: log.performedAt,
+      workTypeId: log.workType.id,
+      volume: String(log.volume),
+      unit: log.unit,
+      performerName: log.performerName,
+      comment: log.comment
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    setError("");
+    await api.deleteWorkLog(id);
+    if (editingId === id) {
+      resetForm();
+    }
+    await loadData();
+  };
+
+  return (
+    <main className="page">
+      <section className="topbar">
+        <div>
+          <p className="eyebrow">Строительный объект</p>
+          <h1>Журнал работ</h1>
+        </div>
+        <button className="icon-button" type="button" onClick={() => void loadData()} title="Обновить">
+          <RefreshCw size={18} />
+        </button>
+      </section>
+
+      {error && (
+        <div className="alert" role="alert">
+          {error}
+        </div>
+      )}
+
+      <section className="workspace">
+        <form className="panel form-panel" onSubmit={handleSubmit}>
+          <div className="panel-header">
+            <div>
+              <p className="eyebrow">{editingId ? "Редактирование" : "Новая запись"}</p>
+              <h2>{editingId ? selectedLog?.workType.name : "Выполненные работы"}</h2>
+            </div>
+            {editingId && (
+              <button className="icon-button muted" type="button" onClick={resetForm} title="Отменить">
+                <X size={18} />
+              </button>
+            )}
+          </div>
+
+          <label>
+            Дата выполнения
+            <input
+              required
+              type="date"
+              value={form.performedAt}
+              onChange={(event) => setForm({ ...form, performedAt: event.target.value })}
+            />
+          </label>
+
+          <label>
+            Вид работ
+            <select
+              required
+              value={form.workTypeId}
+              onChange={(event) => setForm({ ...form, workTypeId: event.target.value })}
+            >
+              {workTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="inline-fields">
+            <label>
+              Объем
+              <input
+                required
+                min="0.01"
+                step="0.01"
+                type="number"
+                value={form.volume}
+                onChange={(event) => setForm({ ...form, volume: event.target.value })}
+              />
+            </label>
+
+            <label>
+              Ед. изм.
+              <select
+                required
+                value={form.unit}
+                onChange={(event) => setForm({ ...form, unit: event.target.value })}
+              >
+                {units.map((unit) => (
+                  <option key={unit} value={unit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Исполнитель
+            <input
+              required
+              placeholder="Иванов И.И."
+              value={form.performerName}
+              onChange={(event) => setForm({ ...form, performerName: event.target.value })}
+            />
+          </label>
+
+          <label>
+            Комментарий
+            <textarea
+              rows={3}
+              value={form.comment}
+              onChange={(event) => setForm({ ...form, comment: event.target.value })}
+            />
+          </label>
+
+          <button className="primary-button" type="submit" disabled={isSaving}>
+            {editingId ? <Check size={18} /> : <Plus size={18} />}
+            {editingId ? "Сохранить" : "Добавить"}
+          </button>
+        </form>
+
+        <section className="journal">
+          <div className="filters">
+            <label>
+              С даты
+              <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+            </label>
+            <label>
+              По дату
+              <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+            </label>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => setSort(sort === "desc" ? "asc" : "desc")}
+            >
+              {sort === "desc" ? <ArrowDown size={18} /> : <ArrowUp size={18} />}
+              Дата
+            </button>
+          </div>
+
+          <div className="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>Дата</th>
+                  <th>Вид работ</th>
+                  <th>Объем</th>
+                  <th>Исполнитель</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log.id}>
+                    <td>
+                      <span className="date-cell">
+                        <CalendarDays size={16} />
+                        {new Intl.DateTimeFormat("ru-RU").format(new Date(log.performedAt))}
+                      </span>
+                    </td>
+                    <td>
+                      <strong>{log.workType.name}</strong>
+                      {log.comment && <small>{log.comment}</small>}
+                    </td>
+                    <td>
+                      {log.volume} {log.unit}
+                    </td>
+                    <td>{log.performerName}</td>
+                    <td>
+                      <div className="row-actions">
+                        <button className="icon-button" type="button" onClick={() => handleEdit(log)} title="Редактировать">
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          className="icon-button danger"
+                          type="button"
+                          onClick={() => void handleDelete(log.id)}
+                          title="Удалить"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {!isLoading && logs.length === 0 && (
+              <div className="empty-state">
+                <CalendarDays size={34} />
+                <p>Записей за выбранный период нет</p>
+              </div>
+            )}
+
+            {isLoading && <div className="empty-state">Загрузка журнала...</div>}
+          </div>
+        </section>
+      </section>
+    </main>
+  );
+}
