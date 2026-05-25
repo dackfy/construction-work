@@ -34,6 +34,8 @@ export function App() {
   const [sort, setSort] = useState<"asc" | "desc">("desc");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [logToDelete, setLogToDelete] = useState<WorkLog | null>(null);
   const [error, setError] = useState("");
 
   const selectedLog = useMemo(
@@ -109,13 +111,24 @@ export function App() {
     });
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!logToDelete) return;
+
+    setIsDeleting(true);
     setError("");
-    await api.deleteWorkLog(id);
-    if (editingId === id) {
-      resetForm();
+
+    try {
+      await api.deleteWorkLog(logToDelete.id);
+      if (editingId === logToDelete.id) {
+        resetForm();
+      }
+      setLogToDelete(null);
+      await loadData();
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Ошибка удаления");
+    } finally {
+      setIsDeleting(false);
     }
-    await loadData();
   };
 
   return (
@@ -285,7 +298,7 @@ export function App() {
                         <button
                           className="icon-button danger"
                           type="button"
-                          onClick={() => void handleDelete(log.id)}
+                          onClick={() => setLogToDelete(log)}
                           title="Удалить"
                         >
                           <Trash2 size={16} />
@@ -308,6 +321,45 @@ export function App() {
           </div>
         </section>
       </section>
+
+      {logToDelete && (
+        <div className="modal-backdrop" role="presentation">
+          <section className="modal" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+            <div className="modal-header">
+              <div>
+                <p className="eyebrow">Удаление записи</p>
+                <h2 id="delete-title">{logToDelete.workType.name}</h2>
+              </div>
+              <button
+                className="icon-button muted"
+                type="button"
+                onClick={() => setLogToDelete(null)}
+                title="Закрыть"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <p className="modal-copy">
+              {new Intl.DateTimeFormat("ru-RU").format(new Date(logToDelete.performedAt))} ·{" "}
+              {logToDelete.volume} {logToDelete.unit} · {logToDelete.performerName}
+            </p>
+            <div className="modal-actions">
+              <button
+                className="secondary-button neutral-button"
+                type="button"
+                onClick={() => setLogToDelete(null)}
+                disabled={isDeleting}
+              >
+                Отмена
+              </button>
+              <button className="danger-button" type="button" onClick={() => void handleDelete()} disabled={isDeleting}>
+                <Trash2 size={18} />
+                Удалить
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
