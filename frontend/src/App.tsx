@@ -2,11 +2,14 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
+  BriefcaseBusiness,
   CalendarDays,
   Check,
+  ClipboardList,
   Pencil,
   Plus,
   RefreshCw,
+  Ruler,
   Trash2,
   X
 } from "lucide-react";
@@ -42,6 +45,12 @@ export function App() {
     () => logs.find((log) => log.id === editingId),
     [editingId, logs]
   );
+  const periodLabel = useMemo(() => {
+    if (startDate && endDate) return `${startDate} - ${endDate}`;
+    if (startDate) return `С ${startDate}`;
+    if (endDate) return `До ${endDate}`;
+    return "Все даты";
+  }, [endDate, startDate]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -134,9 +143,10 @@ export function App() {
   return (
     <main className="page">
       <section className="topbar">
-        <div>
+        <div className="title-block">
           <p className="eyebrow">Строительный объект</p>
           <h1>Журнал работ</h1>
+          <p className="hero-copy">Ежедневный учет работ, объемов и исполнителей на площадке.</p>
         </div>
         <button className="icon-button" type="button" onClick={() => void loadData()} title="Обновить">
           <RefreshCw size={18} />
@@ -148,6 +158,30 @@ export function App() {
           {error}
         </div>
       )}
+
+      <section className="stats-grid" aria-label="Сводка журнала">
+        <article className="stat-card">
+          <ClipboardList size={20} />
+          <div>
+            <span>{logs.length}</span>
+            <p>Записей</p>
+          </div>
+        </article>
+        <article className="stat-card">
+          <BriefcaseBusiness size={20} />
+          <div>
+            <span>{workTypes.length}</span>
+            <p>Видов работ</p>
+          </div>
+        </article>
+        <article className="stat-card">
+          <Ruler size={20} />
+          <div>
+            <span>{periodLabel}</span>
+            <p>Период</p>
+          </div>
+        </article>
+      </section>
 
       <section className="workspace">
         <form className="panel form-panel" onSubmit={handleSubmit}>
@@ -243,23 +277,29 @@ export function App() {
         </form>
 
         <section className="journal">
-          <div className="filters">
-            <label>
-              С даты
-              <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
-            </label>
-            <label>
-              По дату
-              <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
-            </label>
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() => setSort(sort === "desc" ? "asc" : "desc")}
-            >
-              {sort === "desc" ? <ArrowDown size={18} /> : <ArrowUp size={18} />}
-              Дата
-            </button>
+          <div className="journal-header">
+            <div>
+              <p className="eyebrow">Список записей</p>
+              <h2>Работы на объекте</h2>
+            </div>
+            <div className="filters">
+              <label>
+                С даты
+                <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+              </label>
+              <label>
+                По дату
+                <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+              </label>
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => setSort(sort === "desc" ? "asc" : "desc")}
+              >
+                {sort === "desc" ? <ArrowDown size={18} /> : <ArrowUp size={18} />}
+                Дата
+              </button>
+            </div>
           </div>
 
           <div className="table-shell">
