@@ -51,6 +51,17 @@ export function App() {
     if (endDate) return `До ${endDate}`;
     return "Все даты";
   }, [endDate, startDate]);
+  const performerCount = useMemo(
+    () => new Set(logs.map((log) => log.performerName.trim()).filter(Boolean)).size,
+    [logs]
+  );
+  const latestLog = useMemo(
+    () =>
+      [...logs].sort(
+        (first, second) => new Date(second.performedAt).getTime() - new Date(first.performedAt).getTime()
+      )[0],
+    [logs]
+  );
 
   const loadData = async () => {
     setIsLoading(true);
@@ -142,15 +153,50 @@ export function App() {
 
   return (
     <main className="page">
-      <section className="topbar">
-        <div className="title-block">
-          <p className="eyebrow">Строительный объект</p>
-          <h1>Журнал работ</h1>
-          <p className="hero-copy">Ежедневный учет работ, объемов и исполнителей на площадке.</p>
+      <section className="app-chrome" aria-label="Рабочее пространство объекта">
+        <div className="chrome-status">
+          <span className="live-dot" />
+          <span>Объект онлайн</span>
         </div>
-        <button className="icon-button" type="button" onClick={() => void loadData()} title="Обновить">
+        <div className="chrome-tabs" aria-label="Разделы">
+          <span className="chrome-tab active">Журнал</span>
+          <span className="chrome-tab">Объемы</span>
+          <span className="chrome-tab">Смены</span>
+        </div>
+        <button className="icon-button chrome-action" type="button" onClick={() => void loadData()} title="Обновить">
           <RefreshCw size={18} />
         </button>
+      </section>
+
+      <section className="hero-shell">
+        <div className="title-block floating-panel">
+          <p className="eyebrow">Construction OS</p>
+          <h1>Журнал работ</h1>
+          <p className="hero-copy">Операционный слой площадки: факты, объемы и ответственные без лишнего шума.</p>
+          <div className="hero-metrics" aria-label="Ключевые показатели">
+            <span>{logs.length} записей</span>
+            <span>{performerCount} исполнителей</span>
+            <span>{periodLabel}</span>
+          </div>
+        </div>
+
+        <aside className="site-lens" aria-label="Последняя активность">
+          <div className="lens-topline">
+            <span className="live-dot" />
+            <span>Смена синхронизирована</span>
+          </div>
+          <div className="lens-body">
+            <p className="lens-date">
+              {latestLog ? new Intl.DateTimeFormat("ru-RU").format(new Date(latestLog.performedAt)) : "Сегодня"}
+            </p>
+            <h2>{latestLog?.workType.name || "Работы ожидают записи"}</h2>
+            <p>{latestLog?.comment || "Добавьте первую запись, чтобы увидеть последнюю активность объекта."}</p>
+          </div>
+          <button className="lens-refresh" type="button" onClick={() => void loadData()}>
+            <RefreshCw size={16} />
+            Обновить
+          </button>
+        </aside>
       </section>
 
       {error && (
@@ -159,28 +205,22 @@ export function App() {
         </div>
       )}
 
-      <section className="stats-grid" aria-label="Сводка журнала">
-        <article className="stat-card">
-          <ClipboardList size={20} />
-          <div>
-            <span>{logs.length}</span>
-            <p>Записей</p>
-          </div>
-        </article>
-        <article className="stat-card">
-          <BriefcaseBusiness size={20} />
-          <div>
-            <span>{workTypes.length}</span>
-            <p>Видов работ</p>
-          </div>
-        </article>
-        <article className="stat-card stat-card-wide">
-          <Ruler size={20} />
-          <div>
-            <span>{periodLabel}</span>
-            <p>Период</p>
-          </div>
-        </article>
+      <section className="signal-strip" aria-label="Сводка журнала">
+        <div className="signal-item strong">
+          <ClipboardList size={18} />
+          <span>{logs.length}</span>
+          <p>записей</p>
+        </div>
+        <div className="signal-item">
+          <BriefcaseBusiness size={18} />
+          <span>{workTypes.length}</span>
+          <p>видов работ</p>
+        </div>
+        <div className="signal-item">
+          <Ruler size={18} />
+          <span>{periodLabel}</span>
+          <p>период</p>
+        </div>
       </section>
 
       <section className="workspace">
@@ -302,57 +342,47 @@ export function App() {
             </div>
           </div>
 
-          <div className="table-shell">
-            <table>
-              <thead>
-                <tr>
-                  <th>Дата</th>
-                  <th>Вид работ</th>
-                  <th>Объем</th>
-                  <th>Исполнитель</th>
-                  <th>Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id}>
-                    <td>
-                      <span className="date-cell">
-                        <CalendarDays size={16} />
-                        {new Intl.DateTimeFormat("ru-RU").format(new Date(log.performedAt))}
-                      </span>
-                    </td>
-                    <td>
-                      <strong>{log.workType.name}</strong>
-                      {log.comment && <small>{log.comment}</small>}
-                    </td>
-                    <td>
-                      <span className="volume-pill">
-                        {log.volume} {log.unit}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="performer-name">{log.performerName}</span>
-                    </td>
-                    <td>
-                      <div className="row-actions">
-                        <button className="icon-button" type="button" onClick={() => handleEdit(log)} title="Редактировать">
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          className="icon-button danger"
-                          type="button"
-                          onClick={() => setLogToDelete(log)}
-                          title="Удалить"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="work-feed" aria-live="polite">
+            {logs.map((log, index) => (
+              <article
+                className={`work-card ${index === 0 ? "work-card-featured" : ""} ${
+                  index % 3 === 2 ? "work-card-slim" : ""
+                }`}
+                key={log.id}
+              >
+                <div className="work-card-main">
+                  <span className="date-cell">
+                    <CalendarDays size={15} />
+                    {new Intl.DateTimeFormat("ru-RU").format(new Date(log.performedAt))}
+                  </span>
+                  <div>
+                    <h3>{log.workType.name}</h3>
+                    {log.comment && <p>{log.comment}</p>}
+                  </div>
+                </div>
+
+                <div className="work-card-meta">
+                  <span className="volume-pill">
+                    {log.volume} {log.unit}
+                  </span>
+                  <span className="performer-name">{log.performerName}</span>
+                </div>
+
+                <div className="row-actions" aria-label="Действия с записью">
+                  <button className="icon-button" type="button" onClick={() => handleEdit(log)} title="Редактировать">
+                    <Pencil size={16} />
+                  </button>
+                  <button
+                    className="icon-button danger"
+                    type="button"
+                    onClick={() => setLogToDelete(log)}
+                    title="Удалить"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </article>
+            ))}
 
             {!isLoading && logs.length === 0 && (
               <div className="empty-state">
